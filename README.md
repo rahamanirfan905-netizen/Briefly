@@ -15,6 +15,7 @@ Prisma + PostgreSQL · jose (JWT sessions) + bcryptjs · zod.
 Requirements: Node 20+, a PostgreSQL database (local, Supabase, Neon, Railway…).
 
 ```bash
+cd web
 npm install
 cp .env.example .env          # then edit it (see below)
 npx prisma db push            # create tables  (or: npm run db:migrate for tracked migrations)
@@ -113,7 +114,7 @@ Admin: `/api/admin/{stats,refresh,articles,catalog,users,errors}`
 
 ## Scheduled refresh
 
-* **Vercel:** `vercel.json` already schedules `/api/cron/refresh` every 30 minutes. Set `CRON_SECRET` in the project
+* **Vercel:** `web/vercel.json` schedules `/api/cron/refresh` every 30 minutes. Set `CRON_SECRET` in the project
   environment; Vercel sends it automatically as a Bearer token. (Hobby plans limit cron frequency; use a paid
   plan or an external scheduler for 30-minute runs.)
 * **Self-hosted (Node server):** set `ENABLE_INTERNAL_CRON=true` (and optionally `REFRESH_INTERVAL_MINUTES`). The
@@ -129,13 +130,14 @@ Stories older than 14 days are deleted automatically unless a user has bookmarke
 
 **Vercel + Supabase/Neon (simplest)**
 1. Create a Postgres database; copy its connection string (use the pooled/“transaction” URL on serverless).
-2. Push the repo to GitHub and import it in Vercel.
+2. Push the repo to GitHub and import it in Vercel. Set the project's **Root Directory** to `web` so Vercel reads its
+   package manifest and `vercel.json` from the application folder.
 3. Add the environment variables from `.env.example` (including `AUTH_SECRET`, `CRON_SECRET`, `NEXT_PUBLIC_APP_URL`).
-4. Run migrations once from your machine against the production DB: `DATABASE_URL=… npx prisma db push && npm run db:seed`.
+4. Run migrations once from your machine against the production DB: `cd web && DATABASE_URL=… npx prisma db push && npm run db:seed`.
 5. Deploy. Trigger the first fill with the admin "Refresh news now" button or the cron endpoint.
 
-**Self-hosted:** `npm run build && npm start` behind a reverse proxy with HTTPS; set `ENABLE_INTERNAL_CRON=true`.
-Use `npm run db:deploy` for tracked migrations once you've created them with `npm run db:migrate`.
+**Self-hosted:** `cd web && npm run build && npm start` behind a reverse proxy with HTTPS; set `ENABLE_INTERNAL_CRON=true`.
+Use `cd web && npm run db:deploy` for tracked migrations once you've created them with `npm run db:migrate`.
 
 ---
 
@@ -162,5 +164,5 @@ Use `npm run db:deploy` for tracked migrations once you've created them with `np
 
 ## Tests
 
-`npm test` runs unit tests for URL normalisation, duplicate clustering, ranking, label logic, classification and extractive summaries
+`cd web && npm test` runs unit tests for URL normalisation, duplicate clustering, ranking, label logic, classification and extractive summaries
 (Node's built-in test runner, no extra dependencies).

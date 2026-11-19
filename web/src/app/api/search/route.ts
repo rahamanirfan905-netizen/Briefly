@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 const searchSchema = z.object({
   q: z.string().trim().max(100).default(""),
   category: z.string().regex(/^[a-z-]{2,30}$/).optional(),
+  publisher: z.preprocess((value) => value === "" ? undefined : value, z.string().cuid().optional()),
   region: z.enum(["INDIA", "WORLD"]).optional(),
   range: z.enum(["24h", "7d", "30d", "all"]).default("all"),
   sort: z.enum(["relevance", "latest"]).default("relevance"),

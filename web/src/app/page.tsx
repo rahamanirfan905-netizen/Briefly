@@ -1,11 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { getUser } from "@/lib/auth";
 import { getForYou, getTop60 } from "@/lib/queries";
 import { formatDateTime, formatLongDate } from "@/lib/utils";
 import { FeedSection } from "@/components/feed-section";
-import { EmptyState, Labels, NewsCard } from "@/components/news-card";
+import { EmptyState, Labels, NewsCard, Thumb } from "@/components/news-card";
 import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
@@ -19,15 +18,13 @@ export default async function HomePage() {
   const stale = lastUpdated ? Date.now() - new Date(lastUpdated).getTime() > STALE_MS : false;
 
   return (
-    <div className="container pb-8">
-      <header className="pt-8 text-center">
-        <h1 className="font-serif text-5xl font-black tracking-tight sm:text-7xl">BRIEFLY</h1>
-        <p className="mt-2 text-lg text-muted-foreground">Your daily briefing, all in one place.</p>
-        <p className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-x-4 gap-y-1 border-y py-2 text-sm text-muted-foreground">
-          <span>{formatLongDate()}</span>
-          <span>{lastUpdated ? <>Last updated {formatDateTime(lastUpdated)} IST</> : "Not yet updated"}</span>
-          <span><strong className="text-foreground">{total}</strong> stories available</span>
-        </p>
+    <div className="container pb-12">
+      <header className="border-b border-foreground py-8 sm:py-12">
+        <p className="eyebrow">Independent news, edited for your attention</p>
+        <div className="mt-3 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+          <div><h1 className="font-serif text-5xl font-black leading-none tracking-[-0.065em] sm:text-7xl">The daily<br />briefing.</h1><p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">The stories shaping India and the world, ranked and distilled without the noise.</p></div>
+          <p className="max-w-xs border-l border-accent pl-4 text-sm leading-relaxed text-muted-foreground"><span className="block font-semibold text-foreground">{formatLongDate()}</span>{lastUpdated ? <>Updated {formatDateTime(lastUpdated)} IST</> : "Awaiting the first refresh"}<br /><strong className="text-foreground">{total}</strong> stories in today&apos;s edition</p>
+        </div>
       </header>
 
       {stale && (
@@ -45,31 +42,31 @@ export default async function HomePage() {
         </div>
       ) : (
         <>
-          <section aria-label="Top story" className="group mt-8 grid overflow-hidden rounded-xl border bg-card lg:grid-cols-2">
-            <Link href={`/article/${featured.id}`} className="relative block min-h-64 bg-muted lg:min-h-[26rem]" aria-label={featured.headline}>
-              {featured.imageUrl && <Image src={featured.imageUrl} alt="" fill priority sizes="(min-width:1024px) 50vw, 100vw" className="object-cover" />}
+          <section aria-label="Top story" className="group mt-8 grid overflow-hidden rounded-sm border bg-card shadow-sm lg:grid-cols-2">
+            <Link href={`/article/${featured.id}`} className="block min-h-72 lg:min-h-[32rem]" aria-label={featured.headline}>
+              <Thumb a={featured} className="h-full min-h-72 lg:min-h-[32rem]" priority />
             </Link>
-            <div className="flex flex-col justify-center gap-4 p-6 sm:p-10">
-              <div className="flex flex-wrap items-center gap-2 text-xs">
-                <Badge>Top story</Badge><Badge>{featured.category.name}</Badge><Labels a={featured} />
+            <div className="flex flex-col justify-center gap-5 p-6 sm:p-10 lg:p-12">
+              <div className="flex flex-wrap items-center gap-2 text-xs"><span className="eyebrow">Lead story</span>
+                <Badge>{featured.category.name}</Badge><Labels a={featured} />
               </div>
-              <h2 className="text-3xl font-bold leading-tight sm:text-4xl">
-                <Link href={`/article/${featured.id}`} className="hover:underline">{featured.headline}</Link>
+              <h2 className="font-serif text-4xl font-bold leading-[1.02] tracking-tight sm:text-5xl">
+                <Link href={`/article/${featured.id}`} className="editorial-link">{featured.headline}</Link>
               </h2>
               <p className="leading-relaxed text-muted-foreground">{featured.summary}</p>
               <p className="text-sm text-muted-foreground"><span className="font-medium text-foreground">{featured.publisher.name}</span> · {formatDateTime(featured.publishedAt)}</p>
               <div>
-                <Link href={`/article/${featured.id}`} className="inline-flex h-11 items-center gap-2 rounded-md bg-accent px-6 text-sm font-medium text-accent-foreground hover:opacity-90">
-                  Read full story <ArrowUpRight className="h-4 w-4" />
+                <Link href={`/article/${featured.id}`} className="inline-flex h-11 items-center gap-2 rounded-sm bg-accent px-6 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90">
+                  Read summary <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
           </section>
 
           {forYou && forYou.length > 0 && (
-            <section aria-labelledby="foryou-h" className="mt-12">
+            <section aria-labelledby="foryou-h" className="mt-16">
               <div className="section-rule items-baseline justify-between">
-                <h2 id="foryou-h" className="text-2xl font-bold">For you</h2>
+                <div><p className="eyebrow">Your reading</p><h2 id="foryou-h" className="mt-1 text-3xl font-bold">For you</h2></div>
                 <Link href="/profile" className="text-sm text-muted-foreground hover:text-foreground">Edit preferences</Link>
               </div>
               <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{forYou.map((a) => <NewsCard key={a.id} a={a} />)}</div>

@@ -22,10 +22,10 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   if (!feed.category || !(feed.category as { active: boolean }).active) notFound();
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 sm:py-12">
       <div className="section-rule items-baseline justify-between">
-        <h1 className="text-4xl font-bold">{feed.category.name}</h1>
-        <p className="text-sm text-muted-foreground">{feed.total} stories, ranked by importance and recency</p>
+        <div><p className="eyebrow">Section</p><h1 className="mt-1 text-4xl font-bold sm:text-5xl">{feed.category.name}</h1></div>
+        <p className="hidden text-sm text-muted-foreground sm:block">{feed.total} stories, ranked by importance and recency</p>
       </div>
       <div className="mt-6">
         {feed.items.length === 0 ? (

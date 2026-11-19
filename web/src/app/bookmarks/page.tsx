@@ -28,10 +28,10 @@ export default async function BookmarksPage() {
   });
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 sm:py-12">
       <div className="section-rule items-baseline justify-between">
-        <h1 className="text-4xl font-bold">Your bookmarks</h1>
-        <p className="text-sm text-muted-foreground">Saved to your account, so they follow you across devices</p>
+        <div><p className="eyebrow">Your library</p><h1 className="mt-1 text-4xl font-bold sm:text-5xl">Your bookmarks</h1></div>
+        <p className="hidden text-sm text-muted-foreground sm:block">Saved to your account, so they follow you across devices</p>
       </div>
       <div className="mt-6">
         {rows.length === 0 ? (

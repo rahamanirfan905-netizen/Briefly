@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#fbf9f5" }, { media: "(prefers-color-scheme: dark)", color: "#141211" }],
+  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#faf7f1" }, { media: "(prefers-color-scheme: dark)", color: "#1a1512" }],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Skip to content
           </a>
           <Navbar />
-          <main id="main" className="min-h-[70vh]">{children}</main>
+          <main id="main" className="min-h-[72vh]">{children}</main>
           <Footer />
         </ThemeProvider>
       </body>
