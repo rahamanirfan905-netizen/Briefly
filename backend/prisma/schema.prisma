@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Region {
+  INDIA
+  WORLD
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+
+  bookmarks   Bookmark[]
+  history     ReadingHistory[]
+  preferences UserPreference?
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  keywords  String[] // used by the classifier
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+
+  articles NewsArticle[]
+}
+
+model Publisher {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  domain      String? @unique
+  credibility Float   @default(0.6) // 0..1, used in ranking
+  active      Boolean @default(true)
+
+  articles NewsArticle[]
+}
+
+model NewsSource {
+  id            String    @id @default(cuid())
+  key           String    @unique // e.g. "gnews", "guardian", "rss:the-hindu"
+  name          String
+  type          String // API | RSS
+  active        Boolean   @default(true)
+  lastSuccessAt DateTime?
+  lastErrorAt   DateTime?
+  lastError     String?
+  lastCount     Int       @default(0)
+
+  articles NewsArticle[]
+}
+
+model NewsArticle {
+  id          String    @id @default(cuid())
+  headline    String
+  description String?
+  summary     String
+  summaryBy   String    @default("extractive") // extractive | ai
+  imageUrl    String?
+  url         String    @unique
+  author      String?
+  publishedAt DateTime
+  fetchedAt   DateTime  @default(now())
+  region      Region
+  country     String? // ISO-2 where known
+  score       Float     @default(0)
+  isBreaking  Boolean   @default(false)
+  isTrending  Boolean   @default(false)
+  hidden      Boolean   @default(false) // admin "remove"
+  readMinutes Int       @default(1)
+
+  clusterId        String // articles about the same event share this
+  isClusterPrimary Boolean @default(true)
+  clusterSize      Int     @default(1)
+  titleTokens      String[]
+
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id])
+  publisherId String
+  publisher   Publisher @relation(fields: [publisherId], references: [id])
+  sourceId    String
+  source      NewsSource @relation(fields: [sourceId], references: [id])
+
+  bookmarks Bookmark[]
+  history   ReadingHistory[]
+
+  @@index([region, hidden, isClusterPrimary, score(sort: Desc)])
+  @@index([categoryId, hidden, isClusterPrimary, score(sort: Desc)])
+  @@index([publishedAt(sort: Desc)])
+  @@index([clusterId])
+  @@index([publisherId])
+  @@index([headline])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  articleId String
+  createdAt DateTime @default(now())
+
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article NewsArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model UserPreference {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  categories String[] // preferred category slugs
+  region     String   @default("BOTH") // INDIA | WORLD | BOTH
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ReadingHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  articleId String
+  readAt    DateTime @default(now())
+
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article NewsArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([userId, readAt(sort: Desc)])
+}
+
+model AppError {
+  id        String   @id @default(cuid())
+  scope     String // e.g. "ingest:gnews", "api:/api/search"
+  message   String
+  stack     String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+}
+
+// Single-row table: records the last fully successful refresh.
+model RefreshState {
+  id            String    @id @default("singleton")
+  lastSuccessAt DateTime?
+  lastAttemptAt DateTime?
+  running       Boolean   @default(false)
+}
