@@ -88,7 +88,7 @@ const COUNTRY_ALIASES: Record<string, string> = {
 };
 
 export interface SearchParams {
-  q: string; category?: string; region?: "INDIA" | "WORLD"; range?: "24h" | "7d" | "30d" | "all";
+  q: string; category?: string; publisher?: string; region?: "INDIA" | "WORLD"; range?: "24h" | "7d" | "30d" | "all";
   sort: "relevance" | "latest"; page: number; pageSize: number;
 }
 
@@ -108,6 +108,7 @@ export async function searchArticles(p: SearchParams, userId?: string) {
     and.push({ OR: or });
   }
   if (p.category) and.push(p.category === "india" ? { region: "INDIA" } : p.category === "world" ? { region: "WORLD" } : { category: { slug: p.category } });
+  if (p.publisher) and.push({ publisherId: p.publisher });
   if (p.region) and.push({ region: p.region });
   const hours = p.range === "24h" ? 24 : p.range === "7d" ? 168 : p.range === "30d" ? 720 : 0;
   if (hours) and.push({ publishedAt: { gte: new Date(Date.now() - hours * 3600_000) } });

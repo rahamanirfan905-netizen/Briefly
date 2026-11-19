@@ -12,6 +12,7 @@ export const metadata: Metadata = { title: "Search" };
 const schema = z.object({
   q: z.string().trim().max(100).catch(""),
   category: z.string().regex(/^[a-z-]{2,30}$/).optional().catch(undefined),
+  publisher: z.preprocess((value) => value === "" ? undefined : value, z.string().cuid().optional()).catch(undefined),
   region: z.enum(["INDIA", "WORLD"]).optional().catch(undefined),
   range: z.enum(["24h", "7d", "30d", "all"]).catch("all"),
   sort: z.enum(["relevance", "latest"]).catch("relevance"),
@@ -23,15 +24,17 @@ const field = "h-11 rounded-sm border bg-card px-3 text-sm transition-colors foc
 export default async function SearchPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const p = schema.parse(await searchParams);
   const user = await getUser().catch(() => null);
-  const [categories, res] = await Promise.all([
+  const [categories, publishers, res] = await Promise.all([
     db.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" }, select: { slug: true, name: true } }),
-    p.q || p.category || p.region ? searchArticles({ ...p, pageSize: 18 }, user?.id) : Promise.resolve(null),
+    db.publisher.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    p.q || p.category || p.publisher || p.region ? searchArticles({ ...p, pageSize: 18 }, user?.id) : Promise.resolve(null),
   ]);
 
   const qs = (page: number) => {
     const u = new URLSearchParams();
     if (p.q) u.set("q", p.q);
     if (p.category) u.set("category", p.category);
+    if (p.publisher) u.set("publisher", p.publisher);
     if (p.region) u.set("region", p.region);
     if (p.range !== "all") u.set("range", p.range);
     if (p.sort !== "relevance") u.set("sort", p.sort);
@@ -42,14 +45,18 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   return (
     <div className="container py-8 sm:py-12">
       <p className="eyebrow">Archive</p><h1 className="mt-2 text-4xl font-bold sm:text-5xl">Search the briefing</h1>
-      <form method="get" action="/search" role="search" className="mt-6 grid gap-3 rounded-sm border bg-card p-4 shadow-sm sm:grid-cols-6">
-        <div className="relative sm:col-span-6">
+      <form method="get" action="/search" role="search" className="mt-6 grid gap-3 rounded-sm border bg-card p-4 shadow-sm sm:grid-cols-7">
+        <div className="relative sm:col-span-7">
           <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <input name="q" defaultValue={p.q} maxLength={100} aria-label="Search query" placeholder="Headlines, keywords, countries, publishers…" className={`${field} w-full pl-9`} />
         </div>
         <select name="category" defaultValue={p.category ?? ""} aria-label="Category" className={`${field} sm:col-span-2`}>
           <option value="">All categories</option>
           {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+        </select>
+        <select name="publisher" defaultValue={p.publisher ?? ""} aria-label="Publisher" className={`${field} sm:col-span-2`}>
+          <option value="">All publishers</option>
+          {publishers.map((publisher) => <option key={publisher.id} value={publisher.id}>{publisher.name}</option>)}
         </select>
         <select name="region" defaultValue={p.region ?? ""} aria-label="Region" className={field}>
           <option value="">India + World</option>
@@ -66,7 +73,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           <option value="relevance">Most relevant</option>
           <option value="latest">Latest</option>
         </select>
-        <button className="h-11 rounded-sm bg-accent px-5 text-sm font-semibold text-accent-foreground hover:opacity-90 sm:col-span-6 sm:col-start-1 sm:w-32">Search</button>
+        <button className="h-11 rounded-sm bg-accent px-5 text-sm font-semibold text-accent-foreground hover:opacity-90 sm:col-span-7 sm:col-start-1 sm:w-32">Search</button>
       </form>
 
       <div className="mt-8">
