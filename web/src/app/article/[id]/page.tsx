@@ -43,38 +43,38 @@ export default async function ArticlePage({ params }: Props) {
   ];
 
   return (
-    <article className="container max-w-4xl py-8">
+    <article className="container max-w-5xl py-8 sm:py-12">
       <ReadTracker articleId={a.id} />
       <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Home</Link> / <Link href={`/category/${a.category.slug}`} className="hover:text-foreground">{a.category.name}</Link>
+        <Link href="/" className="editorial-link">Home</Link> <span className="mx-1">/</span> <Link href={`/category/${a.category.slug}`} className="editorial-link">{a.category.name}</Link>
       </nav>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 text-xs"><Badge>{a.category.name}</Badge><Labels a={a} /></div>
-      <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-5xl">{a.headline}</h1>
-      <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+      <div className="mt-8 max-w-4xl"><div className="flex flex-wrap items-center gap-2 text-xs"><span className="eyebrow">Briefly / {a.region === "INDIA" ? "India" : "World"}</span><Badge>{a.category.name}</Badge><Labels a={a} /></div>
+      <h1 className="mt-4 font-serif text-4xl font-bold leading-[1.02] tracking-tight sm:text-6xl">{a.headline}</h1>
+      <p className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 border-y py-3 text-sm text-muted-foreground">
         <span className="font-medium text-foreground">{a.publisher.name}</span>
         {a.author && <span>By {a.author}</span>}
         <time dateTime={a.publishedAt}>{formatDateTime(a.publishedAt)} IST</time>
         <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{a.readMinutes} min read (original)</span>
-      </p>
+      </p></div>
 
       {a.imageUrl && (
-        <div className="relative mt-6 aspect-[16/9] overflow-hidden rounded-lg bg-muted">
+        <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-sm bg-muted shadow-sm">
           <Image src={a.imageUrl} alt="" fill priority sizes="(min-width:1024px) 896px, 100vw" className="object-cover" />
         </div>
       )}
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
-        <a href={a.url} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center gap-2 rounded-md bg-accent px-5 text-sm font-medium text-accent-foreground hover:opacity-90">
+        <a href={a.url} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center gap-2 rounded-sm bg-accent px-5 text-sm font-semibold text-accent-foreground hover:opacity-90">
           Read the original on {a.publisher.name} <ArrowUpRight className="h-4 w-4" />
         </a>
         <BookmarkButton articleId={a.id} initial={a.bookmarked} label className="border" />
         <ShareButton title={a.headline} path={`/article/${a.id}`} />
       </div>
 
-      <section aria-labelledby="sum-h" className="mt-10">
-        <h2 id="sum-h" className="section-rule text-2xl font-bold">Summary</h2>
-        <p className="mt-4 text-lg leading-relaxed">{a.summary}</p>
+      <section aria-labelledby="sum-h" className="mt-12 max-w-3xl">
+        <p className="eyebrow">The essential read</p><h2 id="sum-h" className="mt-2 font-serif text-3xl font-bold">Summary</h2>
+        <p className="mt-5 font-serif text-xl leading-relaxed sm:text-2xl">{a.summary}</p>
         <p className="mt-3 text-xs text-muted-foreground">
           {a.summaryBy === "ai"
             ? "AI-written summary based only on the publisher’s own headline and description. It is not a quotation."
@@ -83,9 +83,9 @@ export default async function ArticlePage({ params }: Props) {
         </p>
       </section>
 
-      <section aria-labelledby="facts-h" className="mt-10">
+      <section aria-labelledby="facts-h" className="mt-12">
         <h2 id="facts-h" className="section-rule text-2xl font-bold">Key facts</h2>
-        <dl className="mt-4 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2">
+        <dl className="mt-4 grid gap-px overflow-hidden rounded-sm border bg-border sm:grid-cols-2">
           {facts.map(([k, v]) => (
             <div key={k} className="bg-card p-3">
               <dt className="text-xs uppercase tracking-wide text-muted-foreground">{k}</dt>
@@ -99,7 +99,7 @@ export default async function ArticlePage({ params }: Props) {
         <section aria-labelledby="cov-h" className="mt-10">
           <h2 id="cov-h" className="section-rule text-2xl font-bold">Related coverage</h2>
           <p className="mt-2 text-sm text-muted-foreground">The same event as reported by other publishers.</p>
-          <ul className="mt-4 divide-y rounded-lg border bg-card">
+          <ul className="mt-4 divide-y rounded-sm border bg-card">
             {coverage.map((c) => (
               <li key={c.id} className="flex items-start justify-between gap-4 p-4">
                 <div>

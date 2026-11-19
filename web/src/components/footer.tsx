@@ -2,10 +2,10 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t">
-      <div className="container flex flex-col gap-2 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+    <footer className="mt-20 border-t border-foreground/20">
+      <div className="container flex flex-col gap-4 py-10 text-sm text-muted-foreground sm:flex-row sm:items-start sm:justify-between">
         <p>
-          <span className="font-serif font-semibold text-foreground">Briefly</span> · Stay Informed. Stay Ahead. Briefly.
+          <span className="font-serif text-lg font-bold text-foreground">briefly<span className="text-accent">.</span></span><br />The daily briefing, considered.
         </p>
         <p className="max-w-xl">
           Briefly summarises and links to stories from independent publishers. Every card credits and links to the original article;

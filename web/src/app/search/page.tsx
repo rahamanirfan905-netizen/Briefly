@@ -18,7 +18,7 @@ const schema = z.object({
   page: z.coerce.number().int().min(1).max(50).catch(1),
 });
 
-const field = "h-10 rounded-md border bg-card px-3 text-sm";
+const field = "h-11 rounded-sm border bg-card px-3 text-sm transition-colors focus:border-accent";
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const p = schema.parse(await searchParams);
@@ -40,9 +40,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   };
 
   return (
-    <div className="container py-8">
-      <h1 className="text-4xl font-bold">Search</h1>
-      <form method="get" action="/search" role="search" className="mt-5 grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-6">
+    <div className="container py-8 sm:py-12">
+      <p className="eyebrow">Archive</p><h1 className="mt-2 text-4xl font-bold sm:text-5xl">Search the briefing</h1>
+      <form method="get" action="/search" role="search" className="mt-6 grid gap-3 rounded-sm border bg-card p-4 shadow-sm sm:grid-cols-6">
         <div className="relative sm:col-span-6">
           <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <input name="q" defaultValue={p.q} maxLength={100} aria-label="Search query" placeholder="Headlines, keywords, countries, publishers…" className={`${field} w-full pl-9`} />
@@ -66,7 +66,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           <option value="relevance">Most relevant</option>
           <option value="latest">Latest</option>
         </select>
-        <button className="h-10 rounded-md bg-foreground px-4 text-sm font-medium text-background hover:bg-foreground/85 sm:col-span-6 sm:col-start-1 sm:w-32">Search</button>
+        <button className="h-11 rounded-sm bg-accent px-5 text-sm font-semibold text-accent-foreground hover:opacity-90 sm:col-span-6 sm:col-start-1 sm:w-32">Search</button>
       </form>
 
       <div className="mt-8">
